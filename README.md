@@ -1,47 +1,116 @@
-# Deploying a Flask API
+# FSND: Deploy Flask App to Kubernetes Using EKS
 
-This is the project starter repo for the fourth course in the [Udacity Full Stack Nanodegree](https://www.udacity.com/course/full-stack-web-developer-nanodegree--nd004): Server Deployment, Containerization, and Testing.
+## Python 3.9
 
-In this project you will containerize and deploy a Flask API to a Kubernetes cluster using Docker, AWS EKS, CodePipeline, and CodeBuild.
+- Follow instructions to install the latest version of python for your platform in the [python docs](https://docs.python.org/3/using/unix.html#getting-and-installing-the-latest-version-of-python)
+- Please also install pip3 with Python
 
-The Flask app that will be used for this project consists of a simple API with three endpoints:
+## Prerequisites
 
-- `GET '/'`: This is a simple health check, which returns the response 'Healthy'. 
-- `POST '/auth'`: This takes a email and password as json arguments and returns a JWT based on a custom secret.
-- `GET '/contents'`: This requires a valid JWT, and returns the un-encrpyted contents of that token. 
+**Initialize and activate a virtualenv using:**
 
-The app relies on a secret set as the environment variable `JWT_SECRET` to produce a JWT. The built-in Flask server is adequate for local development, but not production, so you will be using the production-ready [Gunicorn](https://gunicorn.org/) server when deploying the app.
+- MacOS/Linux
 
-## Initial setup
-1. Fork this project to your Github account.
-2. Locally clone your forked version to begin working on the project.
+```shell
+python -m virtualenv env
+source env/bin/activate
+```
 
-## Dependencies
+- Windows
 
-- Docker Engine
-    - Installation instructions for all OSes can be found [here](https://docs.docker.com/install/).
-    - For Mac users, if you have no previous Docker Toolbox installation, you can install Docker Desktop for Mac. If you already have a Docker Toolbox installation, please read [this](https://docs.docker.com/docker-for-mac/docker-toolbox/) before installing.
- - AWS Account
-     - You can create an AWS account by signing up [here](https://aws.amazon.com/#).
-     
-## Project Steps
+```powershell
+python -m virtualenv env
+.\env\bin\activate.ps1
+```
 
-Completing the project involves several steps:
+## How to launch application
 
-1. Write a Dockerfile for a simple Flask API
-2. Build and test the container locally
-3. Create an EKS cluster
-4. Store a secret using AWS Parameter Store
-5. Create a CodePipeline pipeline triggered by GitHub checkins
-6. Create a CodeBuild stage which will build, test, and deploy your code
+1. Initialize and activate a virtualenv using (according to previous steps explained in README) and install the dependencies:
 
-For more detail about each of these steps, see the project lesson [here](https://classroom.udacity.com/nanodegrees/nd004/parts/1d842ebf-5b10-4749-9e5e-ef28fe98f173/modules/ac13842f-c841-4c1a-b284-b47899f4613d/lessons/becb2dac-c108-4143-8f6c-11b30413e28d/concepts/092cdb35-28f7-4145-b6e6-6278b8dd7527).
+- MacOS/Linux
 
-## Scripts
+```shell
+pip install -r requirements.txt
+```
 
-$env:JWT_SECRET='myjwtsecret'
-$env:LOG_LEVEL=DEBUG
+- Windows
 
-$env:TOKEN=(Invoke-RestMethod -Uri http://localhost/auth -Method POST -Body (@{"email"="abc@xyz.com";"password"="mypwd";}|ConvertTo-Json) -ContentType "application/json").token
+```powershell
+pip install -r requirements.txt
+```
 
-Invoke-RestMethod -Uri http://localhost/contents -Method GET -Headers @{"Authorization"="Bearer $($env:TOKEN)"}
+2. Run the development server:
+
+- MacOS/Linux
+
+```shell
+export JWT_SECRET='myjwtsecret'
+export LOG_LEVEL=DEBUG
+export FLASK_APP=app
+export FLASK_ENV=development
+python3 main.py
+```
+
+- Windows with using PowerShell (in case of using 1 installed version of Python use **python**, otherwise use your version of **python3**)
+
+```powershell
+$env:JWT_SECRET = 'myjwtsecret'
+$env:LOG_LEVEL = 'DEBUG'
+$env:FLASK_APP = 'app'
+$env:FLASK_ENV = 'development'
+python .\main.py
+```
+
+## How to test instance
+
+- MacOS/Linux
+
+```shell
+export TOKEN=`curl --data '{"email":"abc@xyz.com","password":"mypwd"}' --header "Content-Type: application/json" -X POST localhost:8080/auth  | jq -r '.token'`
+curl --request GET 'http://localhost:8080/contents' -H "Authorization: Bearer ${TOKEN}" | jq .
+```
+
+- Windows
+
+```powershell
+$env:TOKEN=(Invoke-RestMethod -Uri http://localhost:8080/auth -Method POST -Body (@{"email"="abc@xyz.com";"password"="mypwd";}|ConvertTo-Json) -ContentType "application/json").token
+Invoke-RestMethod -Uri http://localhost:8080/contents -Method GET -Headers @{"Authorization"="Bearer $($env:TOKEN)"}
+```
+
+## How to launch Dockerized application
+
+- MacOS/Linux
+
+```shell
+docker build -t simple-flask .
+docker run --name simpleflask --env-file=.env_file -p 8080:8080 simple-flask
+```
+
+- Windows
+
+```powershell
+docker build -t simple-flask .
+docker run --name simpleflask --env-file=.env_file -p 8080:8080 simple-flask
+```
+
+## How to test Dockerized application
+
+- MacOS/Linux
+
+```shell
+export TOKEN=`curl --data '{"email":"abc@xyz.com","password":"mypwd"}' --header "Content-Type: application/json" -X POST localhost:8080/auth  | jq -r '.token'`
+curl --request GET 'http://localhost:8080/contents' -H "Authorization: Bearer ${TOKEN}" | jq .
+```
+
+- Windows
+
+```powershell
+$env:TOKEN=(Invoke-RestMethod -Uri http://localhost:8080/auth -Method POST -Body (@{"email"="abc@xyz.com";"password"="mypwd";}|ConvertTo-Json) -ContentType "application/json").token
+Invoke-RestMethod -Uri http://localhost:8080/contents -Method GET -Headers @{"Authorization"="Bearer $($env:TOKEN)"}
+```
+
+## References
+
+- [AWS Documentation](https://docs.aws.amazon.com/)
+- [Udacity](https://www.udacity.com/)
+- [Stack Overflow](https://stackoverflow.com/)

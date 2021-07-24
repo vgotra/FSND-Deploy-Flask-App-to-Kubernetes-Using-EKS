@@ -4,7 +4,7 @@ data:
     - groups:
       - system:bootstrappers
       - system:nodes
-      rolearn: arn:aws:iam::<ACCOUNT ID>:role/eksctl-eksctl-demo-nodegroup-ng-6-NodeInstanceRole-150NNK3J8XQQ9
+      rolearn: arn:aws:iam::<ACCOUNT ID>:role/eksctl-eksctl-demo-<some-data>
       username: system:node:{{EC2PrivateDNSName}}
     - groups:
       - system:masters
@@ -18,4 +18,4 @@ metadata:
   name: aws-auth
   namespace: kube-system
   resourceVersion: "1625"
-  uid: 0e80b712-e36d-4165-b068-c6ccbc64036f
+  uid: <uid>
